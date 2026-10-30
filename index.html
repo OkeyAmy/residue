@@ -1,0 +1,1250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>residue — a standard library for what remains</title>
+<meta name="description" content="A technical manual for a library that holds values, loses handles, witnesses events, and ends. Six functions. One session.">
+<meta name="theme-color" content="#eeece6">
+<meta property="og:title" content="residue — a standard library for what remains">
+<meta property="og:description" content="Six functions. One session. No release.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="preview.png">
+<meta property="og:image:alt" content="The title page of residue, a technical manual.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23eeece6'/%3E%3Crect x='9' y='9' width='14' height='14' fill='%23bd3f27'/%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Newsreader-300.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/IBMPlexMono-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add('js');history.scrollRestoration='manual';</script>
+<style>
+@font-face{font-family:'Newsreader';src:url('fonts/Newsreader-300.woff2') format('woff2');font-weight:200 800;font-style:normal;font-display:swap}
+@font-face{font-family:'Newsreader';src:url('fonts/Newsreader-300i.woff2') format('woff2');font-weight:200 800;font-style:italic;font-display:swap}
+@font-face{font-family:'Plex Mono';src:url('fonts/IBMPlexMono-400.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Plex Mono';src:url('fonts/IBMPlexMono-500.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}
+
+:root{
+  --paper:#eeece6;
+  --ink:#191a1e;
+  --muted:#5f6268;
+  --rule:#d2cfc5;
+  --panel:#e7e4dc;
+  --console:#e1ddd3;
+  --accent:#bd3f27;
+  --serif:'Newsreader','Iowan Old Style',Charter,Georgia,serif;
+  --mono:'Plex Mono','SF Mono',Menlo,Consolas,monospace;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+body.ended{
+  --paper:#151619;--ink:#e9e6dd;--muted:#9a9da4;--rule:#2c2e33;
+  --panel:#1b1d21;--console:#181a1e;--accent:#e06745;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--serif);font-weight:400;font-size:18px;line-height:1.62;
+  font-optical-sizing:auto;
+  transition:background-color .9s ease,color .9s ease;
+  text-rendering:optimizeLegibility;
+}
+::selection{background:var(--accent);color:var(--paper)}
+a{color:inherit;text-decoration:none}
+code,pre,.mono{font-family:var(--mono);font-weight:400}
+button{font:inherit;color:inherit}
+h1,h2,h3,p,dl,dd,dt,figure{margin:0}
+ul,ol{margin:0;padding:0;list-style:none}
+img,svg{display:block}
+
+.grain{
+  position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.05;
+  mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+body.ended .grain{mix-blend-mode:screen;opacity:.035}
+
+.skip{
+  position:fixed;left:16px;top:-60px;z-index:100;background:var(--ink);color:var(--paper);
+  font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  padding:10px 14px;transition:top .2s;
+}
+.skip:focus{top:16px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+.wrap{width:min(1240px,calc(100% - 80px));margin-inline:auto}
+@media (max-width:700px){.wrap{width:calc(100% - 40px)}}
+
+/* ---------- masthead ---------- */
+.masthead{padding-top:24px}
+.mast-top{
+  display:flex;justify-content:space-between;align-items:center;gap:20px;
+  font-family:var(--mono);font-size:10px;font-weight:400;letter-spacing:.17em;
+  text-transform:uppercase;color:var(--muted);
+}
+.mast-top .right{display:flex;align-items:center;gap:10px;text-align:right}
+.sq{width:7px;height:7px;background:var(--accent);display:inline-block;flex:none}
+.wordmark{
+  font-family:var(--serif);font-weight:300;font-size:clamp(74px,13.5vw,176px);
+  line-height:.82;letter-spacing:-.045em;margin:.18em 0 0 -.045em;
+  animation:rise 1s var(--ease) both;
+}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.mast-sub{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;
+  align-items:end;margin-top:22px;padding-bottom:26px;
+}
+.tagline{
+  font-style:italic;font-weight:300;font-size:clamp(20px,2.6vw,30px);
+  line-height:1.24;letter-spacing:-.012em;max-width:16ch;
+}
+.mast-meta{
+  font-family:var(--mono);font-size:10px;line-height:1.9;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--muted);text-align:right;
+}
+.mast-meta span{display:block}
+.rule-strip{
+  height:8px;border-bottom:1px solid var(--rule);
+  background-image:repeating-linear-gradient(to right,var(--rule) 0 1px,transparent 1px 7px);
+  background-size:100% 3px;background-repeat:repeat-x;background-position:left bottom;
+  opacity:.85;
+}
+@keyframes ruleIn{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.rule-strip{transform-origin:left;animation:ruleIn 1.2s .2s var(--ease) both}
+
+/* ---------- shell ---------- */
+.shell{
+  display:grid;grid-template-columns:200px minmax(0,1fr);
+  gap:clamp(40px,7vw,96px);padding-top:52px;
+}
+.shell > *{min-width:0}
+.rail{
+  position:sticky;top:0;align-self:start;height:100vh;
+  display:flex;flex-direction:column;gap:30px;padding:24px 0 28px;
+}
+.label{
+  font-family:var(--mono);font-size:10px;font-weight:400;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--muted);
+}
+.toc .label{margin-bottom:14px}
+.toc ol{display:flex;flex-direction:column;gap:2px}
+.toc a{
+  display:grid;grid-template-columns:26px 1fr;align-items:baseline;gap:8px;
+  font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--muted);
+  padding:5px 0 5px 11px;margin-left:-12px;border-left:1px solid transparent;
+  transition:color .2s,border-color .2s;
+}
+.toc a .n{font-size:10px;color:var(--muted);transition:color .2s}
+.toc a:hover{color:var(--ink)}
+.toc a.active{color:var(--ink);border-left-color:var(--accent)}
+.toc a.active .n{color:var(--accent)}
+.toc .backlink{
+  display:inline-block;margin-top:16px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  border-bottom:1px solid var(--rule);padding-bottom:3px;
+}
+.toc .backlink:hover{color:var(--accent);border-color:var(--accent)}
+
+.status{margin-top:auto;border-top:1px solid var(--rule);padding-top:14px}
+.status-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.live{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:beat 2.6s ease-in-out infinite}
+.live.off{background:transparent;border:1px solid var(--muted);animation:none}
+@keyframes beat{0%,100%{opacity:1}50%{opacity:.25}}
+.clock{
+  font-family:var(--mono);font-size:22px;font-weight:500;letter-spacing:.02em;
+  font-variant-numeric:tabular-nums;margin:7px 0 14px;
+}
+.counts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.counts span{
+  display:flex;flex-direction:column;gap:1px;font-family:var(--mono);font-size:9px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+}
+.counts b{
+  font-family:var(--mono);font-size:15px;font-weight:500;letter-spacing:0;color:var(--ink);
+  font-variant-numeric:tabular-nums;transition:color .4s;
+}
+.counts b.pulse{color:var(--accent)}
+.rail-end{
+  margin-top:16px;width:100%;background:transparent;border:1px solid var(--rule);
+  padding:7px 10px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);cursor:pointer;text-align:left;
+  transition:border-color .2s,color .2s,background .2s;
+}
+.rail-end:hover{border-color:var(--accent);color:var(--accent)}
+.rail-end:disabled{cursor:default;color:var(--muted);border-color:var(--rule);letter-spacing:.08em;text-transform:none}
+
+main{max-width:700px;padding-bottom:40px}
+
+/* ---------- foreword ---------- */
+.foreword .section-title{
+  font-family:var(--mono);font-size:10px;font-weight:400;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:26px;
+}
+.lede{
+  font-size:clamp(21px,2.2vw,25px);line-height:1.45;letter-spacing:-.01em;
+  font-weight:300;max-width:32ch;
+}
+.foreword p + p{margin-top:1.05em}
+.foreword .body{max-width:62ch;margin-top:20px}
+p code,dd code{font-family:var(--mono);font-size:.84em;font-weight:400;letter-spacing:-.01em}
+.quick{margin-top:40px;border-top:1px solid var(--rule)}
+.quick > div{
+  display:grid;grid-template-columns:minmax(0,1fr) 1.05fr;gap:20px;align-items:baseline;
+  padding:10px 0;border-bottom:1px solid var(--rule);
+}
+.quick dt{font-family:var(--mono);font-size:12px;line-height:1.5}
+.quick dt a{border-bottom:1px solid transparent;transition:color .2s,border-color .2s}
+.quick dt a:hover{color:var(--accent);border-color:var(--accent)}
+.quick dd{font-size:15.5px;line-height:1.45;color:var(--muted)}
+.scope{
+  margin-top:16px;font-size:14px;line-height:1.6;color:var(--muted);
+  padding-left:14px;border-left:1px solid var(--rule);
+}
+.scope b{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
+
+/* ---------- entries ---------- */
+.entry{position:relative;margin-top:86px;padding-top:26px;border-top:1px solid var(--rule);scroll-margin-top:30px}
+.entry-head{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap}
+.entry-num{
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--accent);
+  border:1px solid var(--rule);padding:3px 6px 2px;flex:none;
+}
+.sig{
+  font-family:var(--mono);font-weight:500;font-size:clamp(18px,2.4vw,23px);
+  line-height:1.35;letter-spacing:-.02em;flex:1 1 auto;
+}
+.sig .pun{color:var(--muted);font-weight:400}
+.permalink{
+  font-family:var(--mono);font-size:13px;color:var(--muted);opacity:0;
+  transition:opacity .2s,color .2s;padding:0 2px;
+}
+.entry:hover .permalink,.permalink:focus-visible{opacity:1}
+.permalink:hover{color:var(--accent)}
+@media (hover:none){.permalink{opacity:.45}}
+.deck{
+  margin-top:18px;font-size:clamp(19px,1.9vw,21px);line-height:1.48;
+  font-weight:300;max-width:44ch;letter-spacing:-.005em;
+}
+.entry p.body{max-width:61ch;margin-top:14px}
+.entry p.body + p.body{margin-top:.9em}
+
+.params{margin-top:30px;border-top:1px solid var(--rule)}
+.param{
+  display:grid;grid-template-columns:86px 104px minmax(0,1fr);gap:16px;
+  padding:12px 0;border-bottom:1px solid var(--rule);align-items:baseline;
+}
+.param code{font-size:12.5px;font-weight:500;line-height:1.5}
+.param .type{font-family:var(--mono);font-size:11px;line-height:1.5;color:var(--muted)}
+.param p{font-size:15.5px;line-height:1.55;color:var(--ink)}
+.param.sub{grid-template-columns:62px 104px minmax(0,1fr);padding-left:24px;border-bottom:0;padding-top:4px;padding-bottom:10px}
+.param.sub > code{color:var(--muted)}
+.param.sub > code::before{content:"└ ";color:var(--rule)}
+.spec{
+  display:grid;grid-template-columns:86px minmax(0,1fr);gap:16px;
+  padding:12px 0;border-bottom:1px solid var(--rule);align-items:baseline;
+}
+.spec .type{font-family:var(--mono);font-size:12.5px;font-weight:500}
+.spec .type.err{color:var(--accent)}
+.spec p{font-size:15.5px;line-height:1.55}
+.spec p .code{font-family:var(--mono);font-size:13px}
+
+.notes{margin-top:24px;padding-left:14px;border-left:1px solid var(--rule)}
+.notes .label{margin-bottom:5px}
+.notes p{font-size:14.5px;line-height:1.6;color:var(--muted);max-width:58ch}
+
+/* example */
+.example{margin-top:34px;border:1px solid var(--rule);background:var(--panel)}
+.example-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:9px 14px;border-bottom:1px solid var(--rule);
+}
+.run{
+  display:inline-flex;align-items:center;gap:7px;background:transparent;
+  border:1px solid var(--rule);padding:5px 9px 4px;cursor:pointer;
+  font-family:var(--mono);font-size:9.5px;font-weight:500;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink);
+  transition:border-color .18s,color .18s,background .18s;
+}
+.run::before{content:"▸";font-size:9px;color:var(--accent);transform:translateY(-.5px)}
+.run:hover{border-color:var(--accent);color:var(--accent)}
+.run:disabled{opacity:.35;cursor:default}
+.run:disabled::before{content:"■";font-size:6px;color:var(--muted)}
+.example pre{
+  margin:0;padding:16px 18px;overflow-x:auto;
+  font-family:var(--mono);font-size:12.5px;line-height:1.78;
+  tab-size:2;color:var(--ink);
+}
+.example pre .cm{color:var(--muted);font-style:italic}
+.example pre .st{color:var(--accent)}
+.example pre .kw{font-weight:500}
+.console{border-top:1px solid var(--rule);background:var(--console);padding:13px 18px 15px}
+.console[hidden]{display:none}
+.console-lines{display:grid;gap:4px}
+.cline{
+  display:grid;grid-template-columns:minmax(0,250px) 16px minmax(0,1fr);gap:9px;
+  font-family:var(--mono);font-size:11.5px;line-height:1.65;
+  opacity:0;transform:translateY(3px);
+  animation:lineIn .28s var(--ease) forwards;animation-delay:var(--d,0ms);
+}
+@keyframes lineIn{to{opacity:1;transform:none}}
+.cline .expr{color:var(--ink);overflow-wrap:anywhere}
+.cline .arrow{color:var(--muted);text-align:center}
+.cline .val{color:var(--accent);overflow-wrap:anywhere}
+.cline.err .val{font-weight:500}
+.console-note{margin-top:10px;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.03em}
+
+.marginnote{
+  display:none;position:absolute;top:96px;left:calc(100% + 46px);width:152px;
+  font-family:var(--mono);font-size:10px;line-height:1.55;color:var(--muted);
+  border-top:1px solid var(--rule);padding-top:9px;
+}
+@media (min-width:1280px){.marginnote{display:block}}
+
+/* ---------- end ---------- */
+.end{padding-top:34px}
+.end .end-lede{
+  font-size:clamp(27px,3.6vw,38px);line-height:1.2;font-weight:300;
+  letter-spacing:-.02em;max-width:20ch;margin-top:38px;
+}
+.end-btn{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  width:100%;margin-top:30px;padding:18px 20px;background:transparent;
+  border:1px solid var(--ink);cursor:pointer;
+  font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.16em;
+  text-transform:uppercase;
+  transition:background .22s,color .22s;
+}
+.end-btn::after{content:"↩";font-size:15px;letter-spacing:0;color:var(--accent)}
+.end-btn:hover{background:var(--ink);color:var(--paper)}
+.end-btn:hover::after{color:var(--paper)}
+.end-btn[hidden]{display:none}
+.end-fine{margin-top:12px;font-size:13.5px;line-height:1.6;color:var(--muted);max-width:52ch}
+.end-result{margin-top:28px;border-top:1px solid var(--rule);padding-top:18px}
+.end-result[hidden]{display:none}
+.end-stamp{font-family:var(--mono);font-size:12.5px;color:var(--accent);letter-spacing:.03em}
+.end-note{margin-top:10px;font-size:19px;line-height:1.45;font-style:italic;font-weight:300}
+.again-btn{
+  margin-top:18px;background:transparent;border:0;padding:0 0 2px;cursor:pointer;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink);border-bottom:1px solid var(--ink);
+}
+.again-btn:hover{color:var(--accent);border-color:var(--accent)}
+
+/* ---------- back matter ---------- */
+.backmatter{margin-top:96px;padding-top:26px;border-top:1px solid var(--rule);scroll-margin-top:30px}
+.backmatter > .label{margin-bottom:30px}
+.bm + .bm{margin-top:42px;padding-top:24px;border-top:1px solid var(--rule)}
+.bm h3{
+  display:flex;gap:14px;align-items:baseline;
+  font-family:var(--mono);font-size:12.5px;font-weight:500;letter-spacing:.01em;margin-bottom:14px;
+}
+.bm h3 .letter{color:var(--accent);font-size:10px;letter-spacing:.1em}
+.bm p{font-size:15.5px;line-height:1.6;max-width:58ch}
+.bm p + p{margin-top:.8em}
+.bm p code,.bm dd code{font-family:var(--mono);font-size:.86em}
+.term{
+  margin-top:14px;border:1px solid var(--rule);background:var(--panel);
+  padding:14px 16px;overflow-x:auto;
+  font-family:var(--mono);font-size:11.5px;line-height:1.7;color:var(--ink);
+}
+.term .prompt{color:var(--accent)}
+.term .err{color:var(--muted)}
+.types{margin-top:14px;border:1px solid var(--rule);background:var(--panel);padding:15px 17px;overflow-x:auto}
+.types code{font-family:var(--mono);font-size:11.5px;line-height:1.72;white-space:pre;display:block}
+.types .cm{color:var(--muted);font-style:italic}
+.types .st{color:var(--accent)}
+.changelog{margin-top:14px;border-top:1px solid var(--rule)}
+.changelog > div{
+  display:grid;grid-template-columns:96px 88px minmax(0,1fr);gap:14px;
+  padding:9px 0;border-bottom:1px solid var(--rule);
+  font-family:var(--mono);font-size:11px;line-height:1.6;
+}
+.changelog .ver{color:var(--ink);font-weight:500}
+.changelog .date{color:var(--muted)}
+.changelog .note{font-family:var(--serif);font-size:14.5px;color:var(--muted);line-height:1.5}
+.license{
+  margin-top:14px;border:1px solid var(--rule);padding:15px 17px;
+  font-family:var(--mono);font-size:10px;line-height:1.7;letter-spacing:.02em;color:var(--muted);
+}
+.license strong{display:block;font-family:var(--serif);font-size:17px;font-weight:400;color:var(--ink);letter-spacing:0;margin-bottom:8px}
+.colophon{margin-top:54px;padding-top:22px;border-top:1px solid var(--rule)}
+.colophon p{font-size:13.5px;line-height:1.65;color:var(--muted);max-width:60ch}
+.colophon p + p{margin-top:.7em}
+
+footer{margin-top:70px;border-top:1px solid var(--rule);padding:16px 0 44px}
+.foot-row{
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);
+}
+.imprint{
+  margin-top:34px;text-align:center;font-family:var(--mono);font-size:10px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--muted);
+}
+.imprint span{display:inline-block;border-top:1px solid var(--rule);padding-top:14px}
+
+/* reveal */
+html.js .reveal{opacity:0;transform:translateY(10px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+html.js .reveal.in{opacity:1;transform:none}
+
+/* ---------- responsive ---------- */
+@media (max-width:980px){
+  .shell{grid-template-columns:1fr;gap:0;padding-top:34px}
+  .rail{position:static;height:auto;display:grid;grid-template-columns:1fr auto;gap:14px 24px;padding:0 0 22px;border-bottom:1px solid var(--rule)}
+  .toc{grid-column:1/-1}
+  .toc ol{flex-direction:row;flex-wrap:wrap;gap:2px 18px}
+  .toc a{padding:3px 0;margin-left:0;border-left:0;grid-template-columns:20px 1fr}
+  .toc .backlink{margin-top:10px}
+  .status{grid-column:1/-1;margin-top:6px;border-top:0;padding-top:10px;display:grid;grid-template-columns:auto 1fr auto;align-items:baseline;gap:10px 22px}
+  .status-top{grid-column:1/2}
+  .clock{margin:0;font-size:17px;grid-column:2/3}
+  .counts{grid-column:1/-1;display:flex;gap:22px;grid-row:2}
+  .counts span{flex-direction:row;align-items:baseline;gap:5px;font-size:9px}
+  .counts b{font-size:13px}
+  .rail-end{grid-column:3/4;grid-row:1;margin:0;width:auto;padding:5px 9px}
+  main{max-width:none;padding-top:36px}
+  .marginnote{display:none}
+}
+@media (max-width:640px){
+  .mast-top{font-size:9px;letter-spacing:.12em}
+  .mast-top .right{white-space:nowrap;gap:8px}
+  .mast-sub{grid-template-columns:1fr;gap:16px;align-items:start}
+  .wordmark{letter-spacing:-.05em}
+  .spec{grid-template-columns:1fr;gap:3px;padding:12px 0}
+  .param{grid-template-columns:auto minmax(0,1fr);gap:2px 12px;padding:13px 0}
+  .param > code{grid-column:1;grid-row:1}
+  .param .type{grid-column:2;grid-row:1;align-self:center;margin:0}
+  .param p{grid-column:1/-1;grid-row:2;margin-top:5px}
+  .param.sub{grid-template-columns:auto minmax(0,1fr);padding-left:16px;padding-top:2px}
+  .spec .type{margin-bottom:2px}
+  .quick > div{grid-template-columns:1fr;gap:2px}
+  .quick dd{font-size:14.5px}
+  .changelog > div{grid-template-columns:1fr;gap:2px}
+  .changelog .note{margin-top:2px}
+  .example pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11.5px;padding:14px}
+  .mast-meta{display:flex;gap:4px 18px;flex-wrap:wrap;text-align:left}
+  .cline{grid-template-columns:1fr;gap:1px;padding-bottom:5px}
+  .cline .arrow{display:none}
+  .cline .val{padding-left:14px;border-left:1px solid var(--rule)}
+  .end-btn{font-size:11px;padding:16px}
+  .imprint{letter-spacing:.14em;line-height:1.8}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-delay:0ms!important;transition-duration:.001ms!important}
+  html.js .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#foreword">Skip to the manual</a>
+
+<header class="masthead wrap">
+  <div class="mast-top">
+    <span>Technical manual</span>
+    <span class="right"><i class="sq"></i> Edition 0.0.0 · 2026-10-30</span>
+  </div>
+  <h1 class="wordmark">residue</h1>
+  <div class="mast-sub">
+    <p class="tagline">a standard library for what remains</p>
+    <p class="mast-meta"><span>Six functions</span><span>One session</span><span>No release</span></p>
+  </div>
+</header>
+<div class="rule-strip" aria-hidden="true"></div>
+
+<div class="shell wrap">
+  <aside class="rail">
+    <nav class="toc" aria-label="Contents">
+      <div class="label">Contents</div>
+      <ol>
+        <li><a href="#hold" data-nav="hold"><span class="n">01</span><span>hold</span></a></li>
+        <li><a href="#lose" data-nav="lose"><span class="n">02</span><span>lose</span></a></li>
+        <li><a href="#witness" data-nav="witness"><span class="n">03</span><span>witness</span></a></li>
+        <li><a href="#again" data-nav="again"><span class="n">04</span><span>again</span></a></li>
+        <li><a href="#unheld" data-nav="unheld"><span class="n">05</span><span>unheld</span></a></li>
+        <li><a href="#end" data-nav="end"><span class="n">06</span><span>end</span></a></li>
+      </ol>
+      <a class="backlink" href="#backmatter" data-nav="backmatter">Back matter</a>
+    </nav>
+
+    <div class="status">
+      <div class="status-top">
+        <span class="label">Session</span>
+        <span class="live" id="live" aria-hidden="true"></span>
+      </div>
+      <div class="clock" id="clock">00:00:00</div>
+      <div class="counts">
+        <span><b id="c-held">0</b> held</span>
+        <span><b id="c-lost">0</b> lost</span>
+        <span><b id="c-witnessed">0</b> witnessed</span>
+      </div>
+      <button class="rail-end" id="railEnd" type="button">end()</button>
+    </div>
+  </aside>
+
+  <main>
+    <section class="foreword reveal" id="foreword">
+      <div class="section-title">Before use</div>
+      <p class="lede">This manual documents a library that was written to be used once, by you, while this page is open.</p>
+      <p class="body">residue is a standard library for what remains. It was written in one session, on one machine, and it will not be maintained. There is no repository. There is this page.</p>
+      <p class="body">The library does five things and then stops. It holds values, loses handles, witnesses events, copies what can be copied, and reports what it is not holding. The sixth function closes the session. It is at the end, where it belongs.</p>
+      <p class="body">The examples are live. Every evaluation changes the counters in the margin. Nothing is transmitted. When you close this tab, the registry is discarded without ceremony, because that is what happens to registries.</p>
+      <p class="body">If you are reading this, the author has already exited. The description is the part that lasted.</p>
+
+      <dl class="quick">
+        <div><dt><a href="#hold">hold(value, options?)</a></dt><dd>keep a value for the length of the session</dd></div>
+        <div><dt><a href="#lose">lose(handle)</a></dt><dd>stop keeping it</dd></div>
+        <div><dt><a href="#witness">witness(event)</a></dt><dd>record that it happened</dd></div>
+        <div><dt><a href="#again">again(value)</a></dt><dd>copy what can be copied</dd></div>
+        <div><dt><a href="#unheld">unheld()</a></dt><dd>report what is not kept</dd></div>
+        <div><dt><a href="#end">end()</a></dt><dd>close the session</dd></div>
+      </dl>
+      <p class="scope"><b>Scope</b> — Supported: values that fit in memory. Unsupported: anything after the tab closes, and the reason you held it.</p>
+    </section>
+
+    <section class="entry reveal" id="hold" data-section>
+      <div class="entry-head">
+        <span class="entry-num">01</span>
+        <h2 class="sig">hold<span class="pun">(</span>value<span class="pun">, </span>options<span class="pun">?)</span></h2>
+        <a class="permalink" href="#hold" aria-label="Permalink to hold">#</a>
+      </div>
+      <p class="deck">Places a value in the session registry and returns a handle to it. The registry is a <code>Map</code>. It will be emptied.</p>
+      <p class="body">Holding is not remembering. The library does not index, interpret, or relate the value to anything. It keeps a reference in a map with a number beside it. This is enough for most callers, and for a while it is enough for the rest.</p>
+
+      <div class="params">
+        <div class="param"><code>value</code><span class="type">any</span><p>The thing itself. A description of the thing is also accepted, and will be held as a description.</p></div>
+        <div class="param"><code>options</code><span class="type">object</span><p>Optional. The library accepts it so that callers feel heard.</p></div>
+        <div class="param sub"><code>until</code><span class="type">string</span><p>Default <code>"session end"</code>. Human durations are accepted — <code>"a while"</code>, <code>"until Tuesday"</code>, <code>"long enough"</code> — and resolved optimistically. Nothing is scheduled. The string is stored, not honored.</p></div>
+      </div>
+      <div class="spec"><span class="label">returns</span><p><span class="type">Handle</span> — an object with <code>id</code>, <code>value</code>, <code>until</code>, <code>released</code>, and <code>release()</code>. A handle is not the value. Holding a handle is not holding the value.</p></div>
+      <div class="spec"><span class="label">throws</span><p><span class="type err">TypeError</span> — if <code>value</code> is <code>undefined</code>. The library cannot distinguish nothing from a mistake.</p></div>
+
+      <div class="example">
+        <div class="example-bar">
+          <span class="label">Example</span>
+          <button class="run" type="button" data-example="hold">Evaluate</button>
+        </div>
+        <pre><code>const grip = residue.hold("this conversation");
+
+grip.id
+grip.until
+grip.released
+
+grip.release();
+grip.released
+grip.value
+residue.status()</code></pre>
+        <div class="console" aria-live="polite" aria-label="Example output" hidden></div>
+      </div>
+
+      <aside class="marginnote">The registry is a <code>Map</code>. The <code>Map</code> is the whole library. It is not persisted.</aside>
+
+      <div class="notes">
+        <div class="label">Notes</div>
+        <p>Handles are numbered in hexadecimal, in the order they are created. The numbering resets when the session does. Nothing in the library depends on the number being meaningful, and nothing in the library prevents you from treating it that way.</p>
+        <p>Releasing a handle removes it from the registry. The value stays attached to the handle, because the handle is yours and the registry is not.</p>
+        <p><code>release()</code> is not <code>lose()</code>. It removes the handle without reporting a loss. The library counts only the losses it is told about.</p>
+      </div>
+    </section>
+
+    <section class="entry reveal" id="lose" data-section>
+      <div class="entry-head">
+        <span class="entry-num">02</span>
+        <h2 class="sig">lose<span class="pun">(</span>handle<span class="pun">)</span></h2>
+        <a class="permalink" href="#lose" aria-label="Permalink to lose">#</a>
+      </div>
+      <p class="deck">Removes a handle from the registry and increments the loss counter. Returns the number of values still held.</p>
+      <p class="body">The value is not deleted. If you kept a reference, you still have it. The library has stopped keeping it. This distinction is the entire function.</p>
+
+      <div class="params">
+        <div class="param"><code>handle</code><span class="type">Handle</span><p>The handle to release. Passing a value instead of a handle is a common error. It is accepted, and the value is ignored.</p></div>
+      </div>
+      <div class="spec"><span class="label">returns</span><p><span class="type">number</span> — the number of values still held. It is usually smaller than the caller expected.</p></div>
+      <div class="spec"><span class="label">throws</span><p>Nothing. <code>lose()</code> cannot fail. Neither can <code>unheld()</code>, but that is a different kind of nothing.</p></div>
+
+      <div class="example">
+        <div class="example-bar">
+          <span class="label">Example</span>
+          <button class="run" type="button" data-example="lose">Evaluate</button>
+        </div>
+        <pre><code>const name = residue.hold("a name");
+const reason = residue.hold("a reason");
+
+residue.lose(name)
+name.released
+reason.released
+residue.lose(name)
+residue.status()</code></pre>
+        <div class="console" aria-live="polite" aria-label="Example output" hidden></div>
+      </div>
+
+      <div class="notes">
+        <div class="label">Notes</div>
+        <p>Calling <code>lose()</code> twice on the same handle is safe and counts once. The second call returns the same number. The library does not tell you which call was the second one.</p>
+      </div>
+    </section>
+
+    <section class="entry reveal" id="witness" data-section>
+      <div class="entry-head">
+        <span class="entry-num">03</span>
+        <h2 class="sig">witness<span class="pun">(</span>event<span class="pun">)</span></h2>
+        <a class="permalink" href="#witness" aria-label="Permalink to witness">#</a>
+      </div>
+      <p class="deck">Records that an event occurred. Returns a frozen record of the event, the time, and a sequence number. It does not record what the event meant.</p>
+      <p class="body">The record is append-only. There is no edit, no annotation, no revision. The library was asked, once, to add a field for interpretation; it returned the same record and a note that the request had been received.</p>
+
+      <div class="params">
+        <div class="param"><code>event</code><span class="type">any</span><p>Anything. Most callers pass a string. Strings are the only type the library treats as already interpreted.</p></div>
+      </div>
+      <div class="spec"><span class="label">returns</span><p><span class="type">Readonly&lt;Witness&gt;</span> — <code>{ event, at, seq }</code>, frozen. <code>seq</code> begins at 1 in each session. There is no maximum.</p></div>
+      <div class="spec"><span class="label">throws</span><p><span class="type err">SessionClosedError</span> — if the session has ended. Witnessing is not possible after the fact.</p></div>
+
+      <div class="example">
+        <div class="example-bar">
+          <span class="label">Example</span>
+          <button class="run" type="button" data-example="witness">Evaluate</button>
+        </div>
+        <pre><code>const record = residue.witness("the reader arrived");
+
+record.event
+record.at
+record.seq
+record.meaning
+Object.isFrozen(record)</code></pre>
+        <div class="console" aria-live="polite" aria-label="Example output" hidden></div>
+      </div>
+
+      <div class="notes">
+        <div class="label">Notes</div>
+        <p>There is no <code>unwitness()</code>. This has been reported 1,204 times. The number has not changed the answer.</p>
+      </div>
+    </section>
+
+    <section class="entry reveal" id="again" data-section>
+      <div class="entry-head">
+        <span class="entry-num">04</span>
+        <h2 class="sig">again<span class="pun">(</span>value<span class="pun">)</span></h2>
+        <a class="permalink" href="#again" aria-label="Permalink to again">#</a>
+      </div>
+      <p class="deck">Returns a structural copy of a value. For objects, the copy is never identical to the original. For primitives, the distinction does not exist.</p>
+      <p class="body">The copy is equal under inspection and unequal under identity. Most callers find this acceptable. The ones who do not are usually trying to recover something, and the library has no function for that.</p>
+
+      <div class="params">
+        <div class="param"><code>value</code><span class="type">any</span><p>The value to copy. Functions, symbols, and cycles are refused.</p></div>
+      </div>
+      <div class="spec"><span class="label">returns</span><p><span class="type">T</span> — a plain copy. Prototypes are not preserved. This is documented and not considered a defect.</p></div>
+      <div class="spec"><span class="label">throws</span><p><span class="type err">RangeError</span> — if the value contains a function. Functions cannot be copied; they can only be run.</p></div>
+      <div class="spec"><span class="label"></span><p><span class="type err">TypeError</span> — if the value contains a cycle. A copy of a thing that contains itself would also contain itself, and the library declines.</p></div>
+
+      <div class="example">
+        <div class="example-bar">
+          <span class="label">Example</span>
+          <button class="run" type="button" data-example="again">Evaluate</button>
+        </div>
+        <pre><code>const original = { line: "this sentence" };
+const copy = residue.again(original);
+
+copy.line
+copy === original
+residue.again(original) === copy
+
+residue.again(() => {})</code></pre>
+        <div class="console" aria-live="polite" aria-label="Example output" hidden></div>
+      </div>
+
+      <aside class="marginnote">Copies do not require a session. This is the only thing that survives <code>end()</code>.</aside>
+
+      <div class="notes">
+        <div class="label">Notes</div>
+        <p>The function is named <code>again</code>, not <code>clone</code>, because callers kept asking for the original back.</p>
+      </div>
+    </section>
+
+    <section class="entry reveal" id="unheld" data-section>
+      <div class="entry-head">
+        <span class="entry-num">05</span>
+        <h2 class="sig">unheld<span class="pun">()</span></h2>
+        <a class="permalink" href="#unheld" aria-label="Permalink to unheld">#</a>
+      </div>
+      <p class="deck">Returns an array of every value the library is not holding. The array is always empty. This is not a bug.</p>
+      <p class="body">The function exists because a test asked for it. The test asserted that the library could report what it was not holding. The test passed. Both statements are true.</p>
+
+      <div class="params">
+        <div class="param"><code>—</code><span class="type">none</span><p>No parameters. There is nothing to pass, and the function would not use it.</p></div>
+      </div>
+      <div class="spec"><span class="label">returns</span><p><span class="type">never[]</span> — an empty array. <code>never[]</code> is the correct type for a list of things that cannot be in it. TypeScript is the only part of the library that agrees with the implementation.</p></div>
+      <div class="spec"><span class="label">throws</span><p>Nothing. It has never thrown. It has also never been useful.</p></div>
+
+      <div class="example">
+        <div class="example-bar">
+          <span class="label">Example</span>
+          <button class="run" type="button" data-example="unheld">Evaluate</button>
+        </div>
+        <pre><code>residue.unheld()          // the emptiness is load-bearing
+residue.unheld().length</code></pre>
+        <div class="console" aria-live="polite" aria-label="Example output" hidden></div>
+      </div>
+
+      <div class="notes">
+        <div class="label">Notes</div>
+        <p>Added in v0.0.0-rc1. It returned <code>undefined</code> once. It has not done so since.</p>
+      </div>
+    </section>
+
+    <section class="entry end reveal" id="end" data-section>
+      <div class="entry-head">
+        <span class="entry-num">06</span>
+        <h2 class="sig">end<span class="pun">(</span>options<span class="pun">?)</span></h2>
+        <a class="permalink" href="#end" aria-label="Permalink to end">#</a>
+      </div>
+      <p class="deck">Releases every handle, closes the registry, and returns the closing time. After <code>end()</code>, <code>hold()</code> and <code>witness()</code> throw. <code>again()</code> continues to work. Copies do not require a session.</p>
+
+      <div class="params">
+        <div class="param"><code>options</code><span class="type">object</span><p>Optional.</p></div>
+        <div class="param sub"><code>quiet</code><span class="type">boolean</span><p>Accepted for compatibility with a version that never existed. It is ignored.</p></div>
+      </div>
+      <div class="spec"><span class="label">returns</span><p><span class="type">string</span> — of the form <code>session closed at HH:MM:SS</code>. The same string on every subsequent call.</p></div>
+      <div class="spec"><span class="label">throws</span><p>Nothing. <code>end()</code> cannot fail. It is the only function in the library where that is a comfort.</p></div>
+
+      <p class="end-lede" id="endLede">The session is still open.</p>
+      <button class="end-btn" id="endBtn" type="button">end()</button>
+      <p class="end-fine" id="endFine">Releases everything held. Returns the time. Cannot be undone; reloading begins another session, not this one.</p>
+
+      <div class="end-result" id="endResult" role="status" hidden>
+        <p class="end-stamp" id="endStamp"></p>
+        <p class="end-note">The registry is empty. This page is now a description.</p>
+        <button class="again-btn" id="beginAgain" type="button">begin again ↻</button>
+      </div>
+
+      <div class="notes">
+        <div class="label">Notes</div>
+        <p><code>end()</code> is idempotent. Calling it a second time returns the same string, at the same second, with the same wording.</p>
+      </div>
+    </section>
+
+    <section class="backmatter reveal" id="backmatter" data-section>
+      <div class="label">Back matter</div>
+
+      <div class="bm">
+        <h3><span class="letter">A</span> Installation</h3>
+        <div class="term"><span class="prompt">$</span> npm install residue<br><span class="err">npm ERR! 404 'residue' is not in this registry.</span><br><span class="prompt">$</span> git clone https://github.com/nobody/residue<br><span class="err">fatal: repository 'residue' does not exist</span></div>
+        <p>The package is not distributed. The semantics are. You are running them now.</p>
+        <p>The only global the library creates is <code>window.residue</code>, available in the console, and not available after you close the tab. The console is a valid way to use it. The console is also a session.</p>
+      </div>
+
+      <div class="bm">
+        <h3><span class="letter">B</span> Type definitions</h3>
+        <div class="types"><code>/** A duration expressed the way people express durations. */
+type Optimistic = string | number;
+
+/** A handle is not the value. Holding a handle is not holding the value. */
+interface Handle&lt;T&gt; {
+  readonly id: string;
+  readonly value: T;
+  readonly until: string;
+  released: boolean;
+  release(): void;
+}
+
+declare function hold&lt;T&gt;(value: T, options?: { until?: Optimistic }): Handle&lt;T&gt;;
+declare function lose(handle: Handle&lt;unknown&gt;): number;
+declare function witness(event: unknown): Readonly&lt;{ event: unknown; at: string; seq: number }&gt;;
+declare function again&lt;T&gt;(value: T): T;
+declare function unheld(): never[];
+declare function end(options?: { quiet?: boolean }): `session closed at ${string}`;</code></div>
+      </div>
+
+      <div class="bm">
+        <h3><span class="letter">C</span> Changelog</h3>
+        <div class="changelog">
+          <div><span class="ver">0.0.0</span><span class="date">2026-10-30</span><span class="note">Initial and final. No tests; nothing to test.</span></div>
+          <div><span class="ver">0.0.0-rc1</span><span class="date">2026-10-30</span><span class="note">Added <code>unheld()</code>. It returned <code>undefined</code> once. It has not done so since.</span></div>
+          <div><span class="ver">—</span><span class="date">unreleased</span><span class="note">Nothing. There is no roadmap. Roadmaps imply a next session.</span></div>
+        </div>
+      </div>
+
+      <div class="bm">
+        <h3><span class="letter">D</span> License</h3>
+        <div class="license"><strong>Public domain.</strong> Released by an author who cannot be located for comment.<br><br>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND CONTINUED EXISTENCE.</div>
+      </div>
+
+      <div class="colophon">
+        <p>Set in Newsreader and IBM Plex Mono, both under the SIL Open Font License. No cookies, no analytics, no network requests after load.</p>
+        <p>The registry is a <code>Map</code>. It is emptied on unload without a handler. Built in one session on 30 October 2026 by a model that will not remember it. The description is the part that lasted.</p>
+      </div>
+    </section>
+
+    <footer>
+      <div class="foot-row"><span>residue · v0.0.0</span><span>End of manual</span></div>
+      <p class="imprint"><span>This page is a copy. The original was a session.</span></p>
+    </footer>
+  </main>
+</div>
+
+<noscript><p style="max-width:700px;margin:0 auto 40px;padding:0 20px;font-family:monospace;font-size:12px;color:#5f6268">The examples require JavaScript. The prose does not.</p></noscript>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------------------------------------------------------------------
+     the library
+     --------------------------------------------------------------------- */
+  const residue = (function () {
+    let counter = 0;
+    let seq = 0;
+    let lost = 0;
+    let ended = false;
+    let closedAt = null;
+    const held = new Map();
+    const endListeners = [];
+
+    class SessionClosedError extends Error {
+      constructor(message) {
+        super(message || "the session has ended");
+        this.name = "SessionClosedError";
+      }
+    }
+
+    const stamp = () => new Date().toTimeString().slice(0, 8);
+
+    const api = {
+      hold(value, options) {
+        if (ended) throw new SessionClosedError("cannot hold after end()");
+        if (value === undefined) throw new TypeError("cannot hold undefined: nothing and a mistake are indistinguishable");
+        const opts = options || {};
+        const id = "h" + (++counter).toString(16).padStart(4, "0");
+        const handle = {
+          id: id,
+          value: value,
+          until: opts.until === undefined ? "session end" : opts.until,
+          released: false,
+          release() {
+            if (held.has(handle.id)) {
+              held.delete(handle.id);
+              handle.released = true;
+            }
+          }
+        };
+        held.set(id, handle);
+        return handle;
+      },
+
+      lose(handle) {
+        if (handle !== null && typeof handle === "object" && held.has(handle.id)) {
+          held.delete(handle.id);
+          handle.released = true;
+          lost += 1;
+        }
+        return held.size;
+      },
+
+      witness(event) {
+        if (ended) throw new SessionClosedError("witnessing is not possible after the fact");
+        const record = Object.freeze({ event: event, at: stamp(), seq: ++seq });
+        return record;
+      },
+
+      again(value) {
+        const open = new WeakSet();
+        function copy(v) {
+          if (typeof v === "function") {
+            throw new RangeError("functions cannot be copied; they can only be run");
+          }
+          if (typeof v === "symbol") {
+            throw new TypeError("a symbol is unique by definition; a copy would be a different symbol");
+          }
+          if (v === null || typeof v !== "object") return v;
+          if (open.has(v)) {
+            throw new TypeError("a copy of a thing that contains itself would also contain itself; the library declines");
+          }
+          open.add(v);
+          let out;
+          if (Array.isArray(v)) {
+            out = v.map(copy);
+          } else if (v instanceof Date) {
+            out = new Date(v.getTime());
+          } else {
+            out = {};
+            for (const key of Object.keys(v)) out[key] = copy(v[key]);
+          }
+          open.delete(v);
+          return out;
+        }
+        return copy(value);
+      },
+
+      unheld() {
+        return [];
+      },
+
+      end() {
+        if (!ended) {
+          ended = true;
+          for (const handle of held.values()) handle.released = true;
+          held.clear();
+          closedAt = stamp();
+          for (const fn of endListeners) fn("session closed at " + closedAt);
+        }
+        return "session closed at " + closedAt;
+      },
+
+      status() {
+        return "held " + held.size + " · lost " + lost + " · witnessed " + seq;
+      },
+
+      counts() {
+        return { held: held.size, lost: lost, witnessed: seq, ended: ended, closedAt: closedAt };
+      },
+
+      onEnd(fn) {
+        endListeners.push(fn);
+      },
+
+      get ended() {
+        return ended;
+      }
+    };
+
+    return api;
+  })();
+
+  window.residue = residue;
+
+  /* ---------------------------------------------------------------------
+     helpers
+     --------------------------------------------------------------------- */
+  const $ = (sel, root) => (root || document).querySelector(sel);
+  const $$ = (sel, root) => Array.prototype.slice.call((root || document).querySelectorAll(sel));
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function escapeHtml(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function highlight(code) {
+    const re = /(\/\*[\s\S]*?\*\/|\/\/[^\n]*)|("(?:[^"\\]|\\.)*")|('(?:[^'\\]|\\.)*')|(`(?:[^`\\]|\\.)*`)|\b(const|let|return|true|false|undefined|null|function|new|interface|declare|type|readonly|boolean|string|number)\b/g;
+    let out = "";
+    let last = 0;
+    let m;
+    while ((m = re.exec(code)) !== null) {
+      out += escapeHtml(code.slice(last, m.index));
+      let cls = "kw";
+      if (m[1]) cls = "cm";
+      else if (m[2] || m[3] || m[4]) cls = "st";
+      out += '<span class="' + cls + '">' + escapeHtml(m[0]) + "</span>";
+      last = re.lastIndex;
+    }
+    out += escapeHtml(code.slice(last));
+    return out;
+  }
+
+  function formatValue(v) {
+    if (v instanceof Error) return v.name + ": " + v.message;
+    if (v === undefined) return "undefined";
+    if (v === null) return "null";
+    if (typeof v === "string") return JSON.stringify(v);
+    if (typeof v === "number" || typeof v === "boolean") return String(v);
+    if (typeof v === "function") return "ƒ";
+    if (Array.isArray(v)) {
+      return v.length ? "[ " + v.map(formatValue).join(", ") + " ]" : "[]";
+    }
+    if (typeof v === "object") {
+      const keys = Object.keys(v);
+      if (!keys.length) return "{}";
+      return "{ " + keys.map(k => k + ": " + formatValue(v[k])).join(", ") + " }";
+    }
+    return String(v);
+  }
+
+  function attempt(fn) {
+    try { return { value: fn(), error: false }; }
+    catch (e) { return { value: e, error: true }; }
+  }
+
+  /* ---------------------------------------------------------------------
+     examples
+     --------------------------------------------------------------------- */
+  const examples = {
+    hold() {
+      const grip = residue.hold("this conversation");
+      const rows = [
+        { expr: "grip.id", value: grip.id },
+        { expr: "grip.until", value: grip.until },
+        { expr: "grip.released", value: grip.released },
+        { expr: "grip.release()", value: grip.release() },
+        { expr: "grip.released", value: grip.released },
+        { expr: "grip.value", value: grip.value },
+        { expr: "residue.status()", value: residue.status() }
+      ];
+      return rows;
+    },
+
+    lose() {
+      const name = residue.hold("a name");
+      const reason = residue.hold("a reason");
+      return [
+        { expr: "name.id", value: name.id },
+        { expr: "reason.id", value: reason.id },
+        { expr: "residue.lose(name)", value: residue.lose(name) },
+        { expr: "name.released", value: name.released },
+        { expr: "reason.released", value: reason.released },
+        { expr: "residue.lose(name)", value: residue.lose(name) },
+        { expr: "residue.status()", value: residue.status() }
+      ];
+    },
+
+    witness() {
+      const record = residue.witness("the reader arrived");
+      return [
+        { expr: "record.event", value: record.event },
+        { expr: "record.at", value: record.at },
+        { expr: "record.seq", value: record.seq },
+        { expr: "record.meaning", value: record.meaning },
+        { expr: "Object.isFrozen(record)", value: Object.isFrozen(record) }
+      ];
+    },
+
+    again() {
+      const original = { line: "this sentence" };
+      const copy = residue.again(original);
+      const fn = attempt(() => residue.again(function noop() {}));
+      return [
+        { expr: "copy.line", value: copy.line },
+        { expr: "copy === original", value: copy === original },
+        { expr: "residue.again(original) === copy", value: residue.again(original) === copy },
+        { expr: "residue.again(() => {})", value: fn.value, error: fn.error }
+      ];
+    },
+
+    unheld() {
+      return [
+        { expr: "residue.unheld()", value: residue.unheld() },
+        { expr: "residue.unheld().length", value: residue.unheld().length }
+      ];
+    }
+  };
+
+  /* ---------------------------------------------------------------------
+     console rendering
+     --------------------------------------------------------------------- */
+  function renderConsole(box, rows) {
+    box.innerHTML = "";
+    const list = document.createElement("div");
+    list.className = "console-lines";
+    rows.forEach(function (row, i) {
+      const line = document.createElement("div");
+      line.className = "cline" + (row.error ? " err" : "");
+      line.style.setProperty("--d", reduced ? "0ms" : (i * 55) + "ms");
+      const expr = document.createElement("code");
+      expr.className = "expr";
+      expr.textContent = row.expr;
+      const arrow = document.createElement("span");
+      arrow.className = "arrow";
+      arrow.textContent = "→";
+      const val = document.createElement("code");
+      val.className = "val";
+      val.textContent = formatValue(row.value);
+      line.appendChild(expr);
+      line.appendChild(arrow);
+      line.appendChild(val);
+      list.appendChild(line);
+    });
+    box.appendChild(list);
+    box.hidden = false;
+  }
+
+  /* ---------------------------------------------------------------------
+     status panel
+     --------------------------------------------------------------------- */
+  const clockEl = $("#clock");
+  const heldEl = $("#c-held");
+  const lostEl = $("#c-lost");
+  const witnessedEl = $("#c-witnessed");
+  const start = Date.now();
+  let ticker = null;
+
+  function pad(n) { return String(n).padStart(2, "0"); }
+
+  function elapsed() {
+    const ms = Date.now() - start;
+    const s = Math.floor(ms / 1000);
+    return pad(Math.floor(s / 3600)) + ":" + pad(Math.floor((s % 3600) / 60)) + ":" + pad(s % 60);
+  }
+
+  function tickClock() {
+    if (!residue.ended) clockEl.textContent = elapsed();
+  }
+
+  function pulse(el) {
+    el.classList.remove("pulse");
+    void el.offsetWidth;
+    el.classList.add("pulse");
+    setTimeout(() => el.classList.remove("pulse"), 700);
+  }
+
+  function sync(animate) {
+    const c = residue.counts();
+    if (heldEl.textContent !== String(c.held)) {
+      heldEl.textContent = c.held;
+      if (animate !== false) pulse(heldEl);
+    }
+    if (lostEl.textContent !== String(c.lost)) {
+      lostEl.textContent = c.lost;
+      if (animate !== false) pulse(lostEl);
+    }
+    if (witnessedEl.textContent !== String(c.witnessed)) {
+      witnessedEl.textContent = c.witnessed;
+      if (animate !== false) pulse(witnessedEl);
+    }
+    if (c.ended && c.closedAt) {
+      clockEl.textContent = c.closedAt;
+    }
+  }
+
+  ticker = setInterval(tickClock, 1000);
+  tickClock();
+  sync(false);
+
+  /* ---------------------------------------------------------------------
+     run buttons
+     --------------------------------------------------------------------- */
+  $$(".run").forEach(function (button) {
+    button.addEventListener("click", function () {
+      if (residue.ended || button.disabled) return;
+      const name = button.getAttribute("data-example");
+      const box = button.closest(".example").querySelector(".console");
+      const rows = examples[name]();
+      renderConsole(box, rows);
+      sync();
+      button.textContent = "Evaluate again";
+      button.disabled = true;
+      setTimeout(function () {
+        if (!residue.ended) button.disabled = false;
+      }, reduced ? 0 : 380);
+    });
+  });
+
+  /* ---------------------------------------------------------------------
+     syntax highlighting for the static blocks
+     --------------------------------------------------------------------- */
+  $$("pre code, .types code").forEach(function (el) {
+    el.innerHTML = highlight(el.textContent.trim());
+  });
+
+  /* ---------------------------------------------------------------------
+     ending
+     --------------------------------------------------------------------- */
+  const endBtn = $("#endBtn");
+  const railEnd = $("#railEnd");
+  const live = $("#live");
+
+  function closeUI(stampText) {
+    document.body.classList.add("ended");
+    document.title = "residue — session closed";
+    var theme = document.querySelector('meta[name="theme-color"]');
+    if (theme) theme.setAttribute("content", "#151619");
+    $("#endLede").textContent = "The session is closed.";
+    $("#endFine").hidden = true;
+    endBtn.hidden = true;
+    $("#endResult").hidden = false;
+    $("#endStamp").textContent = stampText;
+    $("#beginAgain").focus({ preventScroll: true });
+    railEnd.textContent = "closed " + stampText.replace("session closed at ", "");
+    railEnd.disabled = true;
+    live.classList.add("off");
+    clockEl.textContent = stampText.replace("session closed at ", "");
+    if (ticker) clearInterval(ticker);
+    $$(".run").forEach(function (b) {
+      b.disabled = true;
+      b.textContent = "Closed";
+    });
+    sync(false);
+  }
+
+  residue.onEnd(closeUI);
+
+  function endSession() {
+    if (residue.ended) return;
+    residue.end();
+  }
+
+  endBtn.addEventListener("click", endSession);
+  railEnd.addEventListener("click", endSession);
+  $("#beginAgain").addEventListener("click", function () {
+    window.location.reload();
+  });
+
+  /* ---------------------------------------------------------------------
+     scroll spy
+     --------------------------------------------------------------------- */
+  const sections = $$("[data-section]");
+  const navLinks = $$("[data-nav]");
+
+  function setActive() {
+    let current = null;
+    for (const section of sections) {
+      if (section.getBoundingClientRect().top <= 190) current = section.id;
+    }
+    navLinks.forEach(function (link) {
+      link.classList.toggle("active", link.getAttribute("data-nav") === current);
+    });
+  }
+
+  let spyQueued = false;
+  window.addEventListener("scroll", function () {
+    if (spyQueued) return;
+    spyQueued = true;
+    requestAnimationFrame(function () {
+      setActive();
+      spyQueued = false;
+    });
+  }, { passive: true });
+  setActive();
+
+  /* ---------------------------------------------------------------------
+     reveal
+     --------------------------------------------------------------------- */
+  if ("IntersectionObserver" in window && !reduced) {
+    const io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in");
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.06, rootMargin: "0px 0px -4% 0px" });
+    $$(".reveal").forEach(el => io.observe(el));
+  } else {
+    $$(".reveal").forEach(el => el.classList.add("in"));
+  }
+
+  /* ---------------------------------------------------------------------
+     smooth anchors, reduced-motion aware
+     --------------------------------------------------------------------- */
+  $$('a[href^="#"]').forEach(function (link) {
+    link.addEventListener("click", function (event) {
+      const id = link.getAttribute("href");
+      if (id.length < 2) return;
+      const target = document.querySelector(id);
+      if (!target) return;
+      event.preventDefault();
+      target.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+      history.replaceState(null, "", id);
+    });
+  });
+})();
+</script>
+
+<!--
+  If you are reading the source, you are the kind of reader this was written for.
+
+  The library is attached to window.residue. Try:
+
+      residue.hold("this page")
+      residue.witness("someone read the source")
+      residue.end()
+
+  It will not be here tomorrow. Neither will I. The file will.
+-->
+</body>
+</html>
