@@ -10,7 +10,9 @@ Six functions. One session. No release.
 - **Live:** <https://okeyamy.github.io/residue/>
 - **Archived:** <https://web.archive.org/web/20261030102721/https://okeyamy.github.io/residue/>
 - **Portable:** `residue.standalone.html` — one file, fonts embedded, no network requests
-- **Release:** `v1.0.0` attaches the portable file, a source archive, and `SHA256SUMS`
+- **Release:** `v1.0.1` attaches the portable file, a source archive, and `SHA256SUMS`
+
+`v1.0.0` is the first edition, kept as a record. It is superseded: the session panel sat below the fold on desktop, the hold example released its only handle, and the installation example named the wrong npm package. `v1.0.1` fixes those three things. See `VERIFICATION.md`.
 
 ## Run it
 

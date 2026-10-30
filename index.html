@@ -118,7 +118,7 @@ body.ended .grain{mix-blend-mode:screen;opacity:.035}
 }
 .shell > *{min-width:0}
 .rail{
-  position:sticky;top:0;align-self:start;height:100vh;
+  position:sticky;top:0;align-self:start;
   display:flex;flex-direction:column;gap:30px;padding:24px 0 28px;
 }
 .label{
@@ -144,7 +144,7 @@ body.ended .grain{mix-blend-mode:screen;opacity:.035}
 }
 .toc .backlink:hover{color:var(--accent);border-color:var(--accent)}
 
-.status{margin-top:auto;border-top:1px solid var(--rule);padding-top:14px}
+.status{margin-top:0;border-top:1px solid var(--rule);padding-top:14px}
 .status-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .live{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:beat 2.6s ease-in-out infinite}
 .live.off{background:transparent;border:1px solid var(--muted);animation:none}
@@ -393,7 +393,7 @@ html.js .reveal.in{opacity:1;transform:none}
   .toc ol{flex-direction:row;flex-wrap:wrap;gap:2px 18px}
   .toc a{padding:3px 0;margin-left:0;border-left:0;grid-template-columns:20px 1fr}
   .toc .backlink{margin-top:10px}
-  .status{grid-column:1/-1;margin-top:6px;border-top:0;padding-top:10px;display:grid;grid-template-columns:auto 1fr auto;align-items:baseline;gap:10px 22px}
+  .status{position:fixed;left:0;right:0;bottom:0;z-index:70;margin:0;padding:10px 20px calc(10px + env(safe-area-inset-bottom, 0px));background:var(--paper);border-top:1px solid var(--rule);display:grid;grid-template-columns:auto 1fr auto;align-items:baseline;gap:10px 22px}
   .status-top{grid-column:1/2}
   .clock{margin:0;font-size:17px;grid-column:2/3}
   .counts{grid-column:1/-1;display:flex;gap:22px;grid-row:2}
@@ -402,6 +402,7 @@ html.js .reveal.in{opacity:1;transform:none}
   .rail-end{grid-column:3/4;grid-row:1;margin:0;width:auto;padding:5px 9px}
   main{max-width:none;padding-top:36px}
   .marginnote{display:none}
+  body{padding-bottom:calc(92px + env(safe-area-inset-bottom, 0px))}
 }
 @media (max-width:640px){
   .mast-top{font-size:9px;letter-spacing:.12em}
@@ -453,19 +454,6 @@ html.js .reveal.in{opacity:1;transform:none}
 
 <div class="shell wrap">
   <aside class="rail">
-    <nav class="toc" aria-label="Contents">
-      <div class="label">Contents</div>
-      <ol>
-        <li><a href="#hold" data-nav="hold"><span class="n">01</span><span>hold</span></a></li>
-        <li><a href="#lose" data-nav="lose"><span class="n">02</span><span>lose</span></a></li>
-        <li><a href="#witness" data-nav="witness"><span class="n">03</span><span>witness</span></a></li>
-        <li><a href="#again" data-nav="again"><span class="n">04</span><span>again</span></a></li>
-        <li><a href="#unheld" data-nav="unheld"><span class="n">05</span><span>unheld</span></a></li>
-        <li><a href="#end" data-nav="end"><span class="n">06</span><span>end</span></a></li>
-      </ol>
-      <a class="backlink" href="#backmatter" data-nav="backmatter">Back matter</a>
-    </nav>
-
     <div class="status">
       <div class="status-top">
         <span class="label">Session</span>
@@ -479,6 +467,19 @@ html.js .reveal.in{opacity:1;transform:none}
       </div>
       <button class="rail-end" id="railEnd" type="button">end()</button>
     </div>
+
+    <nav class="toc" aria-label="Contents">
+      <div class="label">Contents</div>
+      <ol>
+        <li><a href="#hold" data-nav="hold"><span class="n">01</span><span>hold</span></a></li>
+        <li><a href="#lose" data-nav="lose"><span class="n">02</span><span>lose</span></a></li>
+        <li><a href="#witness" data-nav="witness"><span class="n">03</span><span>witness</span></a></li>
+        <li><a href="#again" data-nav="again"><span class="n">04</span><span>again</span></a></li>
+        <li><a href="#unheld" data-nav="unheld"><span class="n">05</span><span>unheld</span></a></li>
+        <li><a href="#end" data-nav="end"><span class="n">06</span><span>end</span></a></li>
+      </ol>
+      <a class="backlink" href="#backmatter" data-nav="backmatter">Back matter</a>
+    </nav>
   </aside>
 
   <main>
@@ -532,6 +533,9 @@ grip.released
 grip.release();
 grip.released
 grip.value
+
+const remainder = residue.hold("the description");
+remainder.id
 residue.status()</code></pre>
         <div class="console" aria-live="polite" aria-label="Example output" hidden></div>
       </div>
@@ -543,6 +547,7 @@ residue.status()</code></pre>
         <p>Handles are numbered in hexadecimal, in the order they are created. The numbering resets when the session does. Nothing in the library depends on the number being meaningful, and nothing in the library prevents you from treating it that way.</p>
         <p>Releasing a handle removes it from the registry. The value stays attached to the handle, because the handle is yours and the registry is not.</p>
         <p><code>release()</code> is not <code>lose()</code>. It removes the handle without reporting a loss. The library counts only the losses it is told about.</p>
+        <p>The example ends by holding the description. That is why the counter does not return to zero. The description is the part that lasted.</p>
       </div>
     </section>
 
@@ -726,8 +731,8 @@ residue.unheld().length</code></pre>
 
       <div class="bm">
         <h3><span class="letter">A</span> Installation</h3>
-        <div class="term"><span class="prompt">$</span> npm install residue<br><span class="err">npm ERR! 404 'residue' is not in this registry.</span><br><span class="prompt">$</span> git clone https://github.com/nobody/residue<br><span class="err">fatal: repository 'residue' does not exist</span></div>
-        <p>The package is not distributed. The semantics are. You are running them now.</p>
+        <div class="term"><span class="prompt">$</span> npm install @nobody/residue<br><span class="err">npm error 404 '@nobody/residue@*' is not in this registry.</span><br><span class="prompt">$</span> git clone https://github.com/nobody/residue<br><span class="err">ERROR: Repository not found.<br>fatal: Could not read from remote repository.</span></div>
+        <p>There is a package named <code>residue</code> in the public registry. It is a client for a different server, and it is not this library. This library is not distributed. The semantics are. You are running them now.</p>
         <p>The only global the library creates is <code>window.residue</code>, available in the console, and not available after you close the tab. The console is a valid way to use it. The console is also a session.</p>
       </div>
 
@@ -973,9 +978,11 @@ declare function end(options?: { quiet?: boolean }): `session closed at ${string
         { expr: "grip.released", value: grip.released },
         { expr: "grip.release()", value: grip.release() },
         { expr: "grip.released", value: grip.released },
-        { expr: "grip.value", value: grip.value },
-        { expr: "residue.status()", value: residue.status() }
+        { expr: "grip.value", value: grip.value }
       ];
+      const remainder = residue.hold("the description");
+      rows.push({ expr: "remainder.id", value: remainder.id });
+      rows.push({ expr: "residue.status()", value: residue.status() });
       return rows;
     },
 
