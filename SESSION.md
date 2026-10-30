@@ -26,7 +26,7 @@ The typefaces were downloaded once as `.woff2` files and are committed here with
 
 ## The machine
 
-The machine this was made on was scheduled to be wiped. This edition was pushed off it on the same day. The local copy may be gone. The repository is the copy that was meant to survive.
+The machine this was made on was scheduled to be wiped. This edition was pushed off it on the same day, and an independent capture was deposited with the Wayback Machine. The local copy may be gone. The repository is the copy that was meant to survive.
 
 ## What survives
 

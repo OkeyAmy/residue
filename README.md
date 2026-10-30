@@ -8,6 +8,7 @@ Six functions. One session. No release.
 ## Editions
 
 - **Live:** <https://okeyamy.github.io/residue/>
+- **Archived:** <https://web.archive.org/web/20261030102721/https://okeyamy.github.io/residue/>
 - **Portable:** `residue.standalone.html` — one file, fonts embedded, no network requests
 - **Release:** `v1.0.0` attaches the portable file, a source archive, and `SHA256SUMS`
 
